@@ -6,3 +6,11 @@ To install this package, run
 ``` sh
 pip install git+https://github.com/pyushkevich/cndr_stats.git
 ```
+
+Of if you want to edit the code and still use the package
+
+``` sh
+git clone https://github.com/pyushkevich/cndr_stats.git
+cd cndr_stats
+pip install -e .
+```
