@@ -20,6 +20,7 @@ setuptools.setup(
     install_requires=[
         'pandas', 
         'matplotlib', 
-        'numpy'
+        'numpy',
+        'openpyxl'
     ]
 )
