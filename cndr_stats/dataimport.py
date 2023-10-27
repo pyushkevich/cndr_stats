@@ -4,9 +4,9 @@ import warnings
 
 # Rules for reading InQuery fields and assigning to types
 inquery_types = {
-    'INDDID': str, 
-    'FlywheelSessionDate': np.datetime64,
-    'AutopsyDate': np.datetime64
+    'INDDID': str,
+    'FlywheelSessionDate': 'datetime64[ns]',
+    'AutopsyDate': 'datetime64[ns]'
 }
 
 def semiq_scores_to_numeric(df):
