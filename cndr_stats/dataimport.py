@@ -140,12 +140,26 @@ def add_diagnostic_categories(df):
     is_late_ad = is_ad & is_any_diag_late
     is_late_ad_cont = is_ad_cont & is_any_diag_late
 
+    # Determine LATE stage. This is only computed for the AD continuum cases, and based on the 
+    # NPDX inventory. We ignore the presence of LATE in the NPDx, and go on the regional TDP 
+    # measures.
+    if 'CSTDP43' in df and 'DGTDP43' in df and 'ECTDP43' in df and 'AmygTDP43' in df and 'MFTDP43' in df:
+        is_late_0_or_higher = is_ad_cont
+        is_late_1_or_higher = is_late_0_or_higher & ((df.ECTDP43 > 0) | (df.AmygTDP43 > 0))
+        is_late_2_or_higher = is_late_1_or_higher & ((df.CSTDP43 > 0) | (df.DGTDP43 > 0))
+        is_late_3_or_higher = is_late_2_or_higher & (df.MFTDP43 > 0)
+        df['LATE_stage'] = np.nan
+        df.loc[is_late_0_or_higher, 'LATE_stage'] = 0
+        df.loc[is_late_1_or_higher, 'LATE_stage'] = 1
+        df.loc[is_late_2_or_higher, 'LATE_stage'] = 2
+        df.loc[is_late_3_or_higher, 'LATE_stage'] = 3
+
     # Determine LATE stage
-    if 'CSTDP43' in df and 'DGTDP43' in df and 'ECTDP43' in df:
-        mtl_tdp = (df.CSTDP43 + df.DGTDP43 + df.ECTDP43) / 3.0
-        df['LATE_stage'] = 0.0
-        df.loc[is_any_diag_late, 'LATE_stage'] = 1.0
-        df.loc[is_any_diag_late & mtl_tdp > 0, 'LATE_stage'] = 2.0
+    #if 'CSTDP43' in df and 'DGTDP43' in df and 'ECTDP43' in df:
+    #    mtl_tdp = (df.CSTDP43 + df.DGTDP43 + df.ECTDP43) / 3.0
+    #    df['LATE_stage'] = 0.0
+    #    df.loc[is_any_diag_late, 'LATE_stage'] = 1.0
+    #    df.loc[is_any_diag_late & mtl_tdp > 0, 'LATE_stage'] = 2.0
 
     df['is_any_diag_ad'] = is_any_diag_ad.replace({True: 1, False: 0})
     df['is_any_diag_nadt_ftld'] = is_any_diag_nadt_ftld.replace({True: 1, False: 0})
