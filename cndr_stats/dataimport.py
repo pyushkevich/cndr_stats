@@ -141,11 +141,15 @@ def add_diagnostic_categories(df):
     is_late_ad_cont = is_ad_cont & is_any_diag_late
 
     # Determine LATE stage
-    if 'CSTDP43' in df and 'DGTDP43' in df and 'ECTDP43' in df:
-        mtl_tdp = (df.CSTDP43 + df.DGTDP43 + df.ECTDP43) / 3.0
-        df['LATE_stage'] = 0.0
-        df.loc[is_any_diag_late, 'LATE_stage'] = 1.0
-        df.loc[is_any_diag_late & mtl_tdp > 0, 'LATE_stage'] = 2.0
+    if all([f'{x}TDP43' in df for x in ('Amyg','CS','DG','EC','MF')]):
+        a43,cs43,dg43,ec43,mf43 = (df[f'{x}TDP43'] for x in ('Amyg','CS','DG','EC','MF'))
+        mtlmax43 = np.maximum(cs43, np.maximum(dg43, ec43))
+        df['LATE_stage'] = np.nan
+        df.loc[a43 < 1, 'LATE_stage'] = 0
+        df.loc[a43 >= 1, 'LATE_stage'] = 1
+        df.loc[(a43 < 1) & (mtlmax43 >= 1), 'LATE_stage'] = 1
+        df.loc[(a43 >= 1) & (mtlmax43 >= 1), 'LATE_stage'] = 2
+        df.loc[(a43 >= 1) & (mtlmax43 >= 1) & (mf43 >= 1), 'LATE_stage'] = 3
 
     df['is_any_diag_ad'] = is_any_diag_ad.replace({True: 1, False: 0})
     df['is_any_diag_nadt_ftld'] = is_any_diag_nadt_ftld.replace({True: 1, False: 0})
