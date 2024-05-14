@@ -26,10 +26,25 @@ def semiq_scores_to_numeric(df):
     # Conversion rules
     repl_semiq = { 'Rare': 0.5, '2+': 2.0, '3+': 3.0, '1+': 1.0, '0': 0.0, 
                   'Presumed 0': 0.0, 'Not Avail': np.nan, 'Not Done': np.nan, 
-                  'Not Available': np.nan }
+                  'Not Available': np.nan, '.': np.nan }
 
     # Apply the replacements
-    return df.replace({x: repl_semiq for x in cols_semiq}).copy()
+    df_copy = df.copy()
+    for m in cols_semiq:
+        if m in df.columns:
+            df_copy[m] = pd.to_numeric(df[m].replace(repl_semiq), errors='coerce')
+    return df_copy
+
+
+def clean_global_scores(df):
+
+    # All the scores to clean
+    measures = [ 'ABeta', 'CERAD' ]
+
+    df_copy = df.copy()
+    for m in measures:
+        df_copy[m] = pd.to_numeric(df_copy[m], errors='coerce')
+    return df_copy
 
 
 def merge_braak_stages(df):
@@ -61,6 +76,7 @@ def clean_cndr_dataset(df):
     Includes making regional semi-quantitative scores numeric, merging Braak 3 and Braak 6 scores.
     """
     df = semiq_scores_to_numeric(df)
+    df = clean_global_scores(df)
     df = merge_braak_stages(df)
     return df
 
