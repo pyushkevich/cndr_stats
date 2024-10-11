@@ -3,7 +3,7 @@ import setuptools
 setuptools.setup(
     name = 'cndr_stats',
     packages = setuptools.find_packages(),
-    version = '0.2',
+    version = '0.3',
     license="MIT",
     description = 'Python routines for working with CNDR database tables',
     author = 'Paul A. Yushkevich <pyushkevich@gmail.com>',

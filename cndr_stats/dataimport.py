@@ -101,6 +101,10 @@ def add_diagnostic_categories(df):
     ADNC_severity:           Severity of ADNC, 0:none, 1:low, 2:intermediate, 3:high or NaN
     LATE_stage:              Stage of LATE-NC, 0:none, 1:amygdala, 2:mtl or NaN
     """
+
+    # This variable is true if the subject has at least one diagnosis assigned
+    is_any_diag_available = (-df[['NPDx1','NPDx2','NPDx3','NPDx4']].isna()).any(axis=1)
+
     # This variable is true if any one of the NPDx values is AD
     is_any_diag_ad = (df[['NPDx1','NPDx2','NPDx3','NPDx4']]=="Alzheimer's disease").any(axis=1)
 
@@ -139,7 +143,7 @@ def add_diagnostic_categories(df):
     is_ad = is_any_diag_ad & (-is_any_diag_nadt_ftld)
 
     # Is the subject on the AD continuum without weird co-pathologies 
-    is_ad_cont = -is_any_diag_nadt_ftld
+    is_ad_cont = is_any_diag_available & (-is_any_diag_nadt_ftld)
 
     # Determine if this subject has low, intermediate, or high ADNC
     if 'ABeta' in df and 'BraakMrg' in df and 'CERAD' in df:
@@ -167,6 +171,7 @@ def add_diagnostic_categories(df):
         df.loc[(a43 >= 1) & (mtlmax43 >= 1), 'LATE_stage'] = 2
         df.loc[(a43 >= 1) & (mtlmax43 >= 1) & (mf43 >= 1), 'LATE_stage'] = 3
 
+    df['is_any_diag_available'] = is_any_diag_available.replace({True: 1, False: 0})
     df['is_any_diag_ad'] = is_any_diag_ad.replace({True: 1, False: 0})
     df['is_any_diag_nadt_ftld'] = is_any_diag_nadt_ftld.replace({True: 1, False: 0})
     df['is_any_diag_late'] = is_any_diag_late.replace({True: 1, False: 0})
